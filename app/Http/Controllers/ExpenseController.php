@@ -11,7 +11,6 @@ class ExpenseController extends Controller
 {
     public function create()
     {
-        // Busca projetos do usuário para popular o Select (apenas os não cancelados)
         $projects = Project::where('user_id', Auth::id())
             ->where('status', '!=', 'cancelled')
             ->orderBy('title')
@@ -29,7 +28,6 @@ class ExpenseController extends Controller
             'incurred_date' => 'required|date',
         ]);
 
-        // Cria a despesa
         Expense::create([
             'project_id' => $validated['project_id'],
             'description' => $validated['description'],
@@ -37,6 +35,15 @@ class ExpenseController extends Controller
             'incurred_date' => $validated['incurred_date'],
         ]);
 
-        return redirect()->route('dashboard')->with('success', 'Despesa registrada. Menos lucro, mas mais controle!');
+        // --- GAMIFICAÇÃO: Verifica se ganhou medalha (Ex: Investidor) ---
+        $newBadges = Auth::user()->checkBadges();
+        
+        $msg = 'Despesa registrada.';
+        if (count($newBadges) > 0) {
+            $names = collect($newBadges)->pluck('name')->join(', ');
+            $msg .= " 🏅 CONQUISTA: " . $names;
+        }
+
+        return redirect()->route('dashboard')->with('success', $msg);
     }
 }

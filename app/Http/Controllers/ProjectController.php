@@ -40,11 +40,20 @@ class ProjectController extends Controller
             'status' => 'pending',
         ]);
 
-        return redirect()->route('dashboard')->with('success', 'Projeto criado com sucesso!');
+        // --- GAMIFICAÇÃO (Única adição) ---
+        // Verifica se desbloqueou alguma medalha (Ex: Primeiro Projeto)
+        $newBadges = $request->user()->checkBadges();
+
+        $msg = 'Projeto criado com sucesso!';
+        if (count($newBadges) > 0) {
+            $msg .= " 🏅 Conquista Desbloqueada: " . $newBadges[0]->name;
+        }
+
+        return redirect()->route('dashboard')->with('success', $msg);
     }
 
     /**
-     * 3. Exibir Detalhes do Projeto (A FUNÇÃO QUE FALTAVA)
+     * 3. Exibir Detalhes do Projeto
      */
     public function show(Project $project)
     {

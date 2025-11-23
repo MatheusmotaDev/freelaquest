@@ -24,6 +24,13 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
 
     Route::post('/invoices/{invoice}/pay', [InvoiceController::class, 'markAsPaid'])->name('invoices.pay');
 
+    Route::get('/badges', function () {
+        return view('badges.index', [
+            'user' => Auth::user()->load('badges'),
+            'allBadges' => App\Models\Badge::all()
+        ]);
+    })->middleware(['auth'])->name('badges.index');
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
