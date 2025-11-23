@@ -5,17 +5,21 @@
                 {{ __('Painel de Controle') }}
             </h2>
             
-            <!-- GAMIFICAÇÃO DINÂMICA -->
-            <div class="flex items-center gap-4 bg-white dark:bg-gray-800 px-4 py-2 rounded-full shadow-sm border border-gray-200 dark:border-gray-700">
-                <div class="text-right">
+            <!-- GAMIFICAÇÃO: Barra de XP -->
+            <div class="flex items-center gap-4 bg-white dark:bg-gray-800 px-4 py-2 rounded-full shadow-sm border border-gray-200 dark:border-gray-700 relative overflow-hidden group">
+                <div class="absolute bottom-0 left-0 h-1 bg-mystic/30 w-full">
+                    <div class="h-full bg-mystic transition-all duration-1000" style="width: {{ Auth::user()->xp_progress }}%"></div>
+                </div>
+
+                <div class="text-right z-10">
                     <p class="text-xs text-gray-500 uppercase font-bold tracking-wider">
                         Nível {{ Auth::user()->current_level }}
                     </p>
                     <p class="text-sm font-bold text-mystic">
-                        {{ Auth::user()->current_xp }} XP
+                        {{ Auth::user()->current_xp }} / {{ Auth::user()->current_level * 1000 }} XP
                     </p>
                 </div>
-                <div class="h-10 w-10 rounded-full bg-mystic flex items-center justify-center text-white font-bold shadow-lg shadow-mystic/50">
+                <div class="h-10 w-10 rounded-full bg-mystic flex items-center justify-center text-white font-bold shadow-lg shadow-mystic/50 z-10">
                     {{ Auth::user()->current_level }}
                 </div>
             </div>
@@ -27,9 +31,9 @@
             
             <!-- ALERTA DE SUCESSO -->
             @if (session('success'))
-                <div x-data="{ show: true }" x-show="show" class="bg-green-100 border-l-4 border-victory text-green-700 dark:bg-green-900/30 dark:text-green-200 p-4 rounded shadow-sm flex justify-between items-center animate-pulse" role="alert">
+                <div x-data="{ show: true }" x-show="show" class="bg-green-100 border-l-4 border-victory text-green-700 dark:bg-green-900/30 dark:text-green-200 p-4 rounded shadow-sm flex justify-between items-center animate-bounce-once" role="alert">
                     <div class="flex items-center gap-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         <div>
                             <strong class="font-bold">Sucesso!</strong>
                             <span class="block sm:inline">{{ session('success') }}</span>
@@ -41,8 +45,7 @@
 
             <!-- CARDS FINANCEIROS -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                
-                <!-- Card 1: A Receber -->
+                <!-- A Receber -->
                 <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg border-l-4 border-arcane p-6 relative group hover:scale-[1.02] transition duration-300">
                     <div class="text-gray-500 text-sm font-medium uppercase tracking-wide">A Receber</div>
                     <div class="text-3xl font-extrabold text-gray-800 dark:text-white mt-2">
@@ -51,7 +54,7 @@
                     <div class="text-xs text-gray-400 mt-2 font-medium">Faturas pendentes</div>
                 </div>
 
-                <!-- Card 2: Lucro (VERDE VIVO) -->
+                <!-- Lucro Real -->
                 <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg border-l-4 border-emerald-500 p-6 relative hover:scale-[1.02] transition duration-300">
                     <div class="text-gray-500 text-sm font-medium uppercase tracking-wide">Lucro Real (Pago)</div>
                     <div class="text-3xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-2">
@@ -60,7 +63,7 @@
                     <div class="text-xs text-emerald-600/60 dark:text-emerald-400/60 mt-2 font-medium">Dinheiro no bolso</div>
                 </div>
 
-                <!-- Card 3: Meta -->
+                <!-- Meta -->
                 <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-6 relative">
                     <div class="flex justify-between items-end mb-2">
                         <div>
@@ -81,11 +84,12 @@
                 </div>
             </div>
 
-            <!-- ÁREA DE PROJETOS -->
+            <!-- ÁREA DE AÇÕES E PROJETOS -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <!-- Botões de Ação -->
+                <!-- Coluna da Esquerda -->
                 <div class="md:col-span-1 space-y-4">
-                    <!-- Botão NOVO PROJETO - Gradiente e Destaque -->
+                    
+                    <!-- Botões -->
                     <a href="{{ route('projects.create') }}" class="group w-full bg-gradient-to-r from-arcane to-mystic hover:from-blue-600 hover:to-purple-600 text-white font-bold py-4 px-6 rounded-xl shadow-lg shadow-arcane/40 transition-all transform hover:-translate-y-1 hover:shadow-xl flex items-center justify-center gap-3 cursor-pointer text-center relative overflow-hidden">
                         <div class="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-20 transition-opacity"></div>
                         <span class="bg-white/20 rounded-full p-1">
@@ -94,10 +98,55 @@
                         <span class="tracking-wide">Novo Projeto</span>
                     </a>
                     
-                    <button class="w-full bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-750 text-gray-700 dark:text-gray-300 font-semibold py-3 px-4 rounded-xl border border-gray-200 dark:border-gray-700 transition flex items-center justify-center gap-2 shadow-sm hover:shadow-md">
+                    <a href="{{ route('expenses.create') }}" class="w-full bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-750 text-gray-700 dark:text-gray-300 font-semibold py-3 px-4 rounded-xl border border-gray-200 dark:border-gray-700 transition flex items-center justify-center gap-2 shadow-sm hover:shadow-md cursor-pointer">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                         <span>Nova Despesa</span>
-                    </button>
+                    </a>
+
+                    <!-- WIDGET: A RECEBER HOJE (ATUALIZADO) -->
+                    <div class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-100 dark:border-gray-700/50 shadow-sm">
+                        <h4 class="font-bold text-gray-700 dark:text-gray-300 mb-3 text-sm uppercase tracking-wider">A receber</h4>
+                        
+                        @php
+                            $pendingInvoices = \App\Models\Invoice::with('project.client') // Carrega o cliente junto
+                                ->whereHas('project', function($q){ $q->where('user_id', Auth::id()); })
+                                ->where('status', 'pending')
+                                ->orderBy('due_date', 'asc')
+                                ->take(3)
+                                ->get();
+                        @endphp
+
+                        @if($pendingInvoices->count() > 0)
+                            <div class="space-y-3">
+                                @foreach($pendingInvoices as $invoice)
+                                    <div class="flex justify-between items-center p-2 bg-gray-50 dark:bg-gray-700/30 rounded border border-gray-100 dark:border-gray-700">
+                                        <div class="overflow-hidden pr-2">
+                                            <!-- NOME DO CLIENTE (Novo) -->
+                                            <p class="text-[10px] uppercase font-bold text-arcane mb-0.5 truncate" title="{{ $invoice->project->client->name }}">
+                                                {{ $invoice->project->client->name }}
+                                            </p>
+                                            
+                                            <!-- Descrição da Fatura -->
+                                            <p class="text-xs text-gray-500 dark:text-gray-400 truncate w-24" title="{{ $invoice->title }}">
+                                                {{ $invoice->title }}
+                                            </p>
+                                            
+                                            <p class="font-bold text-gray-800 dark:text-white text-xs">R$ {{ number_format($invoice->amount, 0, ',', '.') }}</p>
+                                        </div>
+                                        
+                                        <form method="POST" action="{{ route('invoices.pay', $invoice->id) }}">
+                                            @csrf
+                                            <button type="submit" class="text-xs bg-victory/10 text-victory hover:bg-victory hover:text-white px-3 py-1 rounded transition border border-victory/20 font-bold tracking-wide">
+                                                RECEBER
+                                            </button>
+                                        </form>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @else
+                            <p class="text-xs text-gray-400 text-center py-2">Nada pendente!</p>
+                        @endif
+                    </div>
                 </div>
 
                 <!-- Lista de Projetos Recentes -->
@@ -124,7 +173,6 @@
                                         <div class="mt-3 sm:mt-0 text-right flex items-center gap-4 justify-between sm:justify-end">
                                             <p class="font-bold text-gray-800 dark:text-gray-200 text-lg">R$ {{ number_format($project->total_amount, 2, ',', '.') }}</p>
                                             
-                                            <!-- Status com Cores Neon/Badge -->
                                             <span class="text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider {{ $project->status_color }}">
                                                 {{ $project->status_label }}
                                             </span>
@@ -133,17 +181,14 @@
                                 @endforeach
                             </div>
                         @else
-                            <!-- Estado Vazio -->
                             <div class="text-center py-12 text-gray-400 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800/50">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-3 text-gray-300 dark:text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" /></svg>
                                 <p class="font-medium">Nenhum projeto ativo.</p>
-                                <p class="text-sm mt-1">Aperte o botão "Novo Projeto" ali do lado!</p>
+                                <p class="text-sm mt-1">Clique no botão "Novo Projeto"!</p>
                             </div>
                         @endif
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 </x-app-layout>

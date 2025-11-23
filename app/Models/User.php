@@ -14,7 +14,6 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        // Gamificação e Metas
         'current_xp',
         'current_level',
         'financial_goal_name',
@@ -31,29 +30,42 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
-    // --- RELACIONAMENTOS QUE FALTAVAM ---
+    // Relações
+    public function clients() { return $this->hasMany(Client::class); }
+    public function projects() { return $this->hasMany(Project::class); }
+    public function quotes() { return $this->hasMany(Quote::class); }
+    public function badges() { return $this->belongsToMany(Badge::class)->withPivot('unlocked_at'); }
 
-    // 1. Usuário tem muitos Clientes
-    public function clients()
+    // --- NOVA LÓGICA DE GAMIFICAÇÃO ---
+
+    // Função para ganhar XP e subir de nível
+    public function addXp(int $amount)
     {
-        return $this->hasMany(Client::class);
+        $this->current_xp += $amount;
+        
+        // Regra: Para subir de nível, precisa de (Nível Atual * 1000) XP
+        $xpNeeded = $this->current_level * 1000;
+
+        $leveledUp = false;
+
+        while ($this->current_xp >= $xpNeeded) {
+            $this->current_xp -= $xpNeeded; // Consome o XP usado
+            $this->current_level++;         // Sobe o nível
+            $xpNeeded = $this->current_level * 1000; // Define nova meta
+            $leveledUp = true;
+        }
+
+        $this->save();
+
+        return $leveledUp; // Retorna true se subiu de nível
     }
 
-    // 2. Usuário tem muitos Projetos (O que causou o erro)
-    public function projects()
+    // Calcula a % da barra de progresso roxa
+    public function getXpProgressAttribute()
     {
-        return $this->hasMany(Project::class);
-    }
-
-    // 3. Usuário tem muitos Orçamentos
-    public function quotes()
-    {
-        return $this->hasMany(Quote::class);
-    }
-
-    // 4. Badges (Conquistas) - Relação Many-to-Many
-    public function badges()
-    {
-        return $this->belongsToMany(Badge::class)->withPivot('unlocked_at');
+        $xpNeeded = $this->current_level * 1000;
+        if ($xpNeeded == 0) return 0;
+        
+        return ($this->current_xp / $xpNeeded) * 100;
     }
 }
