@@ -2,47 +2,58 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
     protected $fillable = [
         'name',
         'email',
         'password',
+        // Gamificação e Metas
+        'current_xp',
+        'current_level',
+        'financial_goal_name',
+        'financial_goal_amount',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+    ];
+
+    // --- RELACIONAMENTOS QUE FALTAVAM ---
+
+    // 1. Usuário tem muitos Clientes
+    public function clients()
     {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
+        return $this->hasMany(Client::class);
+    }
+
+    // 2. Usuário tem muitos Projetos (O que causou o erro)
+    public function projects()
+    {
+        return $this->hasMany(Project::class);
+    }
+
+    // 3. Usuário tem muitos Orçamentos
+    public function quotes()
+    {
+        return $this->hasMany(Quote::class);
+    }
+
+    // 4. Badges (Conquistas) - Relação Many-to-Many
+    public function badges()
+    {
+        return $this->belongsToMany(Badge::class)->withPivot('unlocked_at');
     }
 }
