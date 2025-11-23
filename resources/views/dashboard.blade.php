@@ -5,8 +5,9 @@
                 {{ __('Painel de Controle') }}
             </h2>
             
-            <!-- GAMIFICAÇÃO: Barra de XP -->
+            <!-- GAMIFICAÇÃO: Barra de XP Dinâmica -->
             <div class="flex items-center gap-4 bg-white dark:bg-gray-800 px-4 py-2 rounded-full shadow-sm border border-gray-200 dark:border-gray-700 relative overflow-hidden group">
+                <!-- Barra de Fundo (Progresso Roxo) -->
                 <div class="absolute bottom-0 left-0 h-1 bg-mystic/30 w-full">
                     <div class="h-full bg-mystic transition-all duration-1000" style="width: {{ Auth::user()->xp_progress }}%"></div>
                 </div>
@@ -86,10 +87,10 @@
 
             <!-- ÁREA DE AÇÕES E PROJETOS -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <!-- Coluna da Esquerda -->
+                <!-- Coluna da Esquerda: Botões e Widget -->
                 <div class="md:col-span-1 space-y-4">
                     
-                    <!-- Botões -->
+                    <!-- Botão NOVO PROJETO -->
                     <a href="{{ route('projects.create') }}" class="group w-full bg-gradient-to-r from-arcane to-mystic hover:from-blue-600 hover:to-purple-600 text-white font-bold py-4 px-6 rounded-xl shadow-lg shadow-arcane/40 transition-all transform hover:-translate-y-1 hover:shadow-xl flex items-center justify-center gap-3 cursor-pointer text-center relative overflow-hidden">
                         <div class="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-20 transition-opacity"></div>
                         <span class="bg-white/20 rounded-full p-1">
@@ -98,17 +99,19 @@
                         <span class="tracking-wide">Novo Projeto</span>
                     </a>
                     
+                    <!-- Botão NOVA DESPESA -->
                     <a href="{{ route('expenses.create') }}" class="w-full bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-750 text-gray-700 dark:text-gray-300 font-semibold py-3 px-4 rounded-xl border border-gray-200 dark:border-gray-700 transition flex items-center justify-center gap-2 shadow-sm hover:shadow-md cursor-pointer">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                         <span>Nova Despesa</span>
                     </a>
 
-                    <!-- WIDGET: A RECEBER HOJE (ATUALIZADO) -->
+                    <!-- WIDGET: A RECEBER HOJE -->
                     <div class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-100 dark:border-gray-700/50 shadow-sm">
                         <h4 class="font-bold text-gray-700 dark:text-gray-300 mb-3 text-sm uppercase tracking-wider">A receber</h4>
                         
                         @php
-                            $pendingInvoices = \App\Models\Invoice::with('project.client') // Carrega o cliente junto
+                            // Busca faturas pendentes com nomes dos clientes
+                            $pendingInvoices = \App\Models\Invoice::with('project.client') 
                                 ->whereHas('project', function($q){ $q->where('user_id', Auth::id()); })
                                 ->where('status', 'pending')
                                 ->orderBy('due_date', 'asc')
@@ -121,12 +124,12 @@
                                 @foreach($pendingInvoices as $invoice)
                                     <div class="flex justify-between items-center p-2 bg-gray-50 dark:bg-gray-700/30 rounded border border-gray-100 dark:border-gray-700">
                                         <div class="overflow-hidden pr-2">
-                                            <!-- NOME DO CLIENTE (Novo) -->
+                                            <!-- NOME DO CLIENTE -->
                                             <p class="text-[10px] uppercase font-bold text-arcane mb-0.5 truncate" title="{{ $invoice->project->client->name }}">
                                                 {{ $invoice->project->client->name }}
                                             </p>
                                             
-                                            <!-- Descrição da Fatura -->
+                                            <!-- Descrição -->
                                             <p class="text-xs text-gray-500 dark:text-gray-400 truncate w-24" title="{{ $invoice->title }}">
                                                 {{ $invoice->title }}
                                             </p>
@@ -134,6 +137,7 @@
                                             <p class="font-bold text-gray-800 dark:text-white text-xs">R$ {{ number_format($invoice->amount, 0, ',', '.') }}</p>
                                         </div>
                                         
+                                        <!-- Botão Receber -->
                                         <form method="POST" action="{{ route('invoices.pay', $invoice->id) }}">
                                             @csrf
                                             <button type="submit" class="text-xs bg-victory/10 text-victory hover:bg-victory hover:text-white px-3 py-1 rounded transition border border-victory/20 font-bold tracking-wide">
@@ -162,22 +166,25 @@
                         @if($activeProjects->count() > 0)
                             <div class="space-y-3">
                                 @foreach($activeProjects as $project)
-                                    <div class="group flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/30 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-arcane dark:hover:border-arcane/50 hover:bg-white dark:hover:bg-gray-700 transition duration-200 cursor-pointer">
-                                        <div class="flex flex-col">
-                                            <h4 class="font-bold text-gray-800 dark:text-white text-base group-hover:text-arcane transition-colors">{{ $project->title }}</h4>
-                                            <p class="text-sm text-gray-500 flex items-center gap-1">
-                                                <span class="w-2 h-2 rounded-full bg-gray-300"></span>
-                                                {{ $project->client->name }}
-                                            </p>
+                                    <!-- Card Linkado para Detalhes -->
+                                    <a href="{{ route('projects.show', $project->id) }}" class="block">
+                                        <div class="group flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/30 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-arcane dark:hover:border-arcane/50 hover:bg-white dark:hover:bg-gray-700 transition duration-200 cursor-pointer">
+                                            <div class="flex flex-col">
+                                                <h4 class="font-bold text-gray-800 dark:text-white text-base group-hover:text-arcane transition-colors">{{ $project->title }}</h4>
+                                                <p class="text-sm text-gray-500 flex items-center gap-1">
+                                                    <span class="w-2 h-2 rounded-full bg-gray-300"></span>
+                                                    {{ $project->client->name }}
+                                                </p>
+                                            </div>
+                                            <div class="mt-3 sm:mt-0 text-right flex items-center gap-4 justify-between sm:justify-end">
+                                                <p class="font-bold text-gray-800 dark:text-gray-200 text-lg">R$ {{ number_format($project->total_amount, 2, ',', '.') }}</p>
+                                                
+                                                <span class="text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider {{ $project->status_color }}">
+                                                    {{ $project->status_label }}
+                                                </span>
+                                            </div>
                                         </div>
-                                        <div class="mt-3 sm:mt-0 text-right flex items-center gap-4 justify-between sm:justify-end">
-                                            <p class="font-bold text-gray-800 dark:text-gray-200 text-lg">R$ {{ number_format($project->total_amount, 2, ',', '.') }}</p>
-                                            
-                                            <span class="text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider {{ $project->status_color }}">
-                                                {{ $project->status_label }}
-                                            </span>
-                                        </div>
-                                    </div>
+                                    </a>
                                 @endforeach
                             </div>
                         @else

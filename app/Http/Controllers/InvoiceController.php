@@ -3,36 +3,76 @@
 namespace App\Http\Controllers;
 
 use App\Models\Invoice;
+use App\Models\Project;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class InvoiceController extends Controller
 {
-    // Ação de Marcar como Paga
+    /**
+     * 1. Mostrar formulário de Nova Fatura
+     * Recebemos o Projeto na URL para já vincular automático
+     */
+    public function create(Project $project)
+    {
+        // Segurança: Só pode criar fatura se o projeto for seu
+        if ($project->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        return view('invoices.create', compact('project'));
+    }
+
+    /**
+     * 2. Salvar a Fatura
+     */
+    public function store(Request $request, Project $project)
+    {
+        // Segurança
+        if ($project->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'amount' => 'required|numeric|min:0.01',
+            'due_date' => 'required|date',
+        ]);
+
+        // Cria a fatura vinculada ao projeto
+        $project->invoices()->create([
+            'title' => $validated['title'],
+            'amount' => $validated['amount'],
+            'due_date' => $validated['due_date'],
+            'status' => 'pending', // Nasce pendente
+        ]);
+
+        return redirect()->route('projects.show', $project->id)
+            ->with('success', 'Fatura criada! Agora é só cobrar.');
+    }
+
+    /**
+     * 3. Pagar a Fatura (Já existia)
+     */
     public function markAsPaid(Invoice $invoice)
     {
-        // Segurança: Só pode pagar se for dono do projeto
         if ($invoice->project->user_id !== auth()->id()) {
             abort(403);
         }
 
-        // Se já pagou, não faz nada
         if ($invoice->status === 'paid') {
             return back()->with('error', 'Essa fatura já foi paga.');
         }
 
-        // 1. Atualiza status da fatura no banco
         $invoice->update([
             'status' => 'paid',
             'paid_at' => now(),
         ]);
 
-        // 2. GAMIFICAÇÃO: O valor da fatura vira XP
+        // Gamificação
         $xpEarned = (int) $invoice->amount;
-        
-        // Chama a função que criamos no Passo 1
         $leveledUp = auth()->user()->addXp($xpEarned);
 
-        // 3. Prepara a mensagem de vitória
         $message = "Pagamento confirmado! Você ganhou +{$xpEarned} XP.";
         
         if ($leveledUp) {

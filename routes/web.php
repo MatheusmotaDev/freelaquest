@@ -19,6 +19,9 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
 
     Route::resource('expenses', ExpenseController::class)->only(['create', 'store']);
 
+    Route::get('/projects/{project}/invoices/create', [InvoiceController::class, 'create'])->name('projects.invoices.create');
+    Route::post('/projects/{project}/invoices', [InvoiceController::class, 'store'])->name('projects.invoices.store');
+
     Route::post('/invoices/{invoice}/pay', [InvoiceController::class, 'markAsPaid'])->name('invoices.pay');
 
 Route::middleware('auth')->group(function () {
