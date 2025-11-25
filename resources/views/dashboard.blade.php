@@ -6,10 +6,9 @@
             </h2>
             
             <!-- GAMIFICAÇÃO: Barra de XP Clicável -->
-            <!-- Ao clicar, leva para o Ranking/Leaderboard -->
             <a href="{{ route('leaderboard.index') }}" class="group transition transform hover:scale-105 cursor-pointer" title="Ver Ranking e Evolução">
                 <div class="flex items-center gap-4 bg-white dark:bg-gray-800 px-4 py-2 rounded-full shadow-sm border border-gray-200 dark:border-gray-700 relative overflow-hidden">
-                    <!-- Barra de Fundo (Progresso Roxo) -->
+                    <!-- Barra de Fundo (Progresso) -->
                     <div class="absolute bottom-0 left-0 h-1 bg-mystic/30 w-full">
                         <div class="h-full bg-mystic transition-all duration-1000" style="width: {{ Auth::user()->xp_progress }}%"></div>
                     </div>
@@ -30,7 +29,8 @@
         </div>
     </x-slot>
 
-    <div class="py-12">
+    <!-- Adicionamos x-data aqui para controlar o Modal da Meta -->
+    <div class="py-12" x-data="{ showGoalModal: false }">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
             
             <!-- ALERTA DE SUCESSO -->
@@ -49,7 +49,7 @@
 
             <!-- CARDS FINANCEIROS -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- A Receber -->
+                <!-- Card 1: A Receber -->
                 <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg border-l-4 border-arcane p-6 relative group hover:scale-[1.02] transition duration-300">
                     <div class="text-gray-500 text-sm font-medium uppercase tracking-wide">A Receber</div>
                     <div class="text-3xl font-extrabold text-gray-800 dark:text-white mt-2">
@@ -58,7 +58,7 @@
                     <div class="text-xs text-gray-400 mt-2 font-medium">Faturas pendentes</div>
                 </div>
 
-                <!-- Lucro Real -->
+                <!-- Card 2: Lucro Real -->
                 <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg border-l-4 border-emerald-500 p-6 relative hover:scale-[1.02] transition duration-300">
                     <div class="text-gray-500 text-sm font-medium uppercase tracking-wide">Lucro Real (Pago)</div>
                     <div class="text-3xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-2">
@@ -67,11 +67,20 @@
                     <div class="text-xs text-emerald-600/60 dark:text-emerald-400/60 mt-2 font-medium">Dinheiro no bolso</div>
                 </div>
 
-                <!-- Meta -->
-                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-6 relative">
+                <!-- Card 3: Meta (AGORA EDITÁVEL) -->
+                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-6 relative group">
+                    <!-- Botão de Editar (Aparece ao passar o mouse) -->
+                    <button @click="showGoalModal = true" class="absolute top-4 right-4 text-gray-400 hover:text-arcane transition opacity-0 group-hover:opacity-100" title="Editar Meta">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                        </svg>
+                    </button>
+
                     <div class="flex justify-between items-end mb-2">
                         <div>
-                            <div class="text-gray-500 text-sm font-medium uppercase tracking-wide">Meta: {{ Auth::user()->financial_goal_name ?? 'Definir Meta' }}</div>
+                            <div class="text-gray-500 text-sm font-medium uppercase tracking-wide flex items-center gap-2">
+                                Meta: {{ Auth::user()->financial_goal_name ?? 'Definir Meta' }}
+                            </div>
                             <div class="text-2xl font-bold text-gray-800 dark:text-white mt-1">
                                 {{ number_format($goalProgress, 0) }}%
                             </div>
@@ -90,7 +99,7 @@
 
             <!-- ÁREA DE AÇÕES E PROJETOS -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <!-- Coluna da Esquerda: Botões e Widget -->
+                <!-- Coluna da Esquerda -->
                 <div class="md:col-span-1 space-y-4">
                     
                     <!-- Botão NOVO PROJETO -->
@@ -113,7 +122,6 @@
                         <h4 class="font-bold text-gray-700 dark:text-gray-300 mb-3 text-sm uppercase tracking-wider">A receber</h4>
                         
                         @php
-                            // Busca faturas pendentes com nomes dos clientes
                             $pendingInvoices = \App\Models\Invoice::with('project.client') 
                                 ->whereHas('project', function($q){ $q->where('user_id', Auth::id()); })
                                 ->where('status', 'pending')
@@ -127,23 +135,18 @@
                                 @foreach($pendingInvoices as $invoice)
                                     <div class="flex justify-between items-center p-2 bg-gray-50 dark:bg-gray-700/30 rounded border border-gray-100 dark:border-gray-700">
                                         <div class="overflow-hidden pr-2">
-                                            <!-- NOME DO CLIENTE -->
                                             <p class="text-[10px] uppercase font-bold text-arcane mb-0.5 truncate" title="{{ $invoice->project->client->name }}">
                                                 {{ $invoice->project->client->name }}
                                             </p>
-                                            
-                                            <!-- Descrição -->
                                             <p class="text-xs text-gray-500 dark:text-gray-400 truncate w-24" title="{{ $invoice->title }}">
                                                 {{ $invoice->title }}
                                             </p>
-                                            
                                             <p class="font-bold text-gray-800 dark:text-white text-xs">R$ {{ number_format($invoice->amount, 0, ',', '.') }}</p>
                                         </div>
                                         
-                                        <!-- Botão Receber -->
                                         <form method="POST" action="{{ route('invoices.pay', $invoice->id) }}">
                                             @csrf
-                                            <button type="submit" class="text-xs bg-victory/10 text-victory hover:bg-victory hover:text-white px-3 py-1 rounded transition border border-victory/20 font-bold tracking-wide" title="Confirmar Recebimento (+XP)">
+                                            <button type="submit" class="text-xs bg-victory/10 text-victory hover:bg-victory hover:text-white px-3 py-1 rounded transition border border-victory/20 font-bold tracking-wide">
                                                 RECEBER
                                             </button>
                                         </form>
@@ -169,7 +172,6 @@
                         @if($activeProjects->count() > 0)
                             <div class="space-y-3">
                                 @foreach($activeProjects as $project)
-                                    <!-- Card Linkado para Detalhes -->
                                     <a href="{{ route('projects.show', $project->id) }}" class="block">
                                         <div class="group flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/30 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-arcane dark:hover:border-arcane/50 hover:bg-white dark:hover:bg-gray-700 transition duration-200 cursor-pointer">
                                             <div class="flex flex-col">
@@ -181,7 +183,6 @@
                                             </div>
                                             <div class="mt-3 sm:mt-0 text-right flex items-center gap-4 justify-between sm:justify-end">
                                                 <p class="font-bold text-gray-800 dark:text-gray-200 text-lg">R$ {{ number_format($project->total_amount, 2, ',', '.') }}</p>
-                                                
                                                 <span class="text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider {{ $project->status_color }}">
                                                     {{ $project->status_label }}
                                                 </span>
@@ -200,5 +201,48 @@
                 </div>
             </div>
         </div>
+
+        <!-- MODAL DE EDITAR META -->
+        <div x-show="showGoalModal" 
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-75" style="display: none;">
+            
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-6 max-w-md w-full transform transition-all scale-100">
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Definir Nova Meta</h3>
+                
+                <form method="POST" action="{{ route('goal.update') }}">
+                    @csrf
+                    @method('PUT')
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nome do Objetivo</label>
+                        <input type="text" name="financial_goal_name" value="{{ Auth::user()->financial_goal_name }}" 
+                               class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:border-arcane focus:ring-arcane"
+                               placeholder="Ex: Macbook Air, Viagem Japão...">
+                    </div>
+
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Valor da Meta (R$)</label>
+                        <input type="number" step="0.01" name="financial_goal_amount" value="{{ Auth::user()->financial_goal_amount }}" 
+                               class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:border-arcane focus:ring-arcane">
+                    </div>
+
+                    <div class="flex justify-end gap-3">
+                        <button type="button" @click="showGoalModal = false" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg transition">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="px-4 py-2 bg-arcane hover:bg-blue-600 text-white font-bold rounded-lg shadow transition">
+                            Salvar Meta
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
     </div>
 </x-app-layout>

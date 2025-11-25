@@ -10,10 +10,13 @@ use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\QuoteController;
 use App\Http\Controllers\LeaderboardController;
+use App\Http\Controllers\GoalController;
 
 Route::get('/', function () {
     return view('welcome');
 });
+
+
 
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
@@ -46,6 +49,8 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
     Route::post('/quotes/{quote}/reject', [QuoteController::class, 'reject'])->name('quotes.reject');
 
     Route::get('/leaderboard', [LeaderboardController::class, 'index'])->name('leaderboard.index');
+
+    Route::put('/goal/update', [GoalController::class, 'update'])->name('goal.update');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
