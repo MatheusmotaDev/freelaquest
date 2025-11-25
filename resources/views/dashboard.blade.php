@@ -5,25 +5,28 @@
                 {{ __('Painel de Controle') }}
             </h2>
             
-            <!-- GAMIFICAÇÃO: Barra de XP Dinâmica -->
-            <div class="flex items-center gap-4 bg-white dark:bg-gray-800 px-4 py-2 rounded-full shadow-sm border border-gray-200 dark:border-gray-700 relative overflow-hidden group">
-                <!-- Barra de Fundo (Progresso Roxo) -->
-                <div class="absolute bottom-0 left-0 h-1 bg-mystic/30 w-full">
-                    <div class="h-full bg-mystic transition-all duration-1000" style="width: {{ Auth::user()->xp_progress }}%"></div>
-                </div>
+            <!-- GAMIFICAÇÃO: Barra de XP Clicável -->
+            <!-- Ao clicar, leva para o Ranking/Leaderboard -->
+            <a href="{{ route('leaderboard.index') }}" class="group transition transform hover:scale-105 cursor-pointer" title="Ver Ranking e Evolução">
+                <div class="flex items-center gap-4 bg-white dark:bg-gray-800 px-4 py-2 rounded-full shadow-sm border border-gray-200 dark:border-gray-700 relative overflow-hidden">
+                    <!-- Barra de Fundo (Progresso Roxo) -->
+                    <div class="absolute bottom-0 left-0 h-1 bg-mystic/30 w-full">
+                        <div class="h-full bg-mystic transition-all duration-1000" style="width: {{ Auth::user()->xp_progress }}%"></div>
+                    </div>
 
-                <div class="text-right z-10">
-                    <p class="text-xs text-gray-500 uppercase font-bold tracking-wider">
-                        Nível {{ Auth::user()->current_level }}
-                    </p>
-                    <p class="text-sm font-bold text-mystic">
-                        {{ Auth::user()->current_xp }} / {{ Auth::user()->current_level * 1000 }} XP
-                    </p>
+                    <div class="text-right z-10">
+                        <p class="text-xs text-gray-500 uppercase font-bold tracking-wider group-hover:text-arcane transition-colors">
+                            Nível {{ Auth::user()->current_level }}
+                        </p>
+                        <p class="text-sm font-bold text-mystic">
+                            {{ Auth::user()->current_xp }} / {{ Auth::user()->current_level * 1000 }} XP
+                        </p>
+                    </div>
+                    <div class="h-10 w-10 rounded-full bg-mystic flex items-center justify-center text-white font-bold shadow-lg shadow-mystic/50 z-10 group-hover:bg-arcane transition-colors">
+                        {{ Auth::user()->current_level }}
+                    </div>
                 </div>
-                <div class="h-10 w-10 rounded-full bg-mystic flex items-center justify-center text-white font-bold shadow-lg shadow-mystic/50 z-10">
-                    {{ Auth::user()->current_level }}
-                </div>
-            </div>
+            </a>
         </div>
     </x-slot>
 
@@ -140,7 +143,7 @@
                                         <!-- Botão Receber -->
                                         <form method="POST" action="{{ route('invoices.pay', $invoice->id) }}">
                                             @csrf
-                                            <button type="submit" class="text-xs bg-victory/10 text-victory hover:bg-victory hover:text-white px-3 py-1 rounded transition border border-victory/20 font-bold tracking-wide">
+                                            <button type="submit" class="text-xs bg-victory/10 text-victory hover:bg-victory hover:text-white px-3 py-1 rounded transition border border-victory/20 font-bold tracking-wide" title="Confirmar Recebimento (+XP)">
                                                 RECEBER
                                             </button>
                                         </form>

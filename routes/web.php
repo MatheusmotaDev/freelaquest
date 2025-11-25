@@ -9,6 +9,7 @@ use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\QuoteController;
+use App\Http\Controllers\LeaderboardController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -43,6 +44,8 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
     Route::resource('quotes', QuoteController::class);
     Route::post('/quotes/{quote}/convert', [QuoteController::class, 'convert'])->name('quotes.convert');
     Route::post('/quotes/{quote}/reject', [QuoteController::class, 'reject'])->name('quotes.reject');
+
+    Route::get('/leaderboard', [LeaderboardController::class, 'index'])->name('leaderboard.index');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
