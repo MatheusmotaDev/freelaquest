@@ -6,6 +6,9 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\AnalyticsController;
+use App\Http\Controllers\ClientController;
+use App\Http\Controllers\QuoteController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -30,6 +33,16 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
             'allBadges' => App\Models\Badge::all()
         ]);
     })->middleware(['auth'])->name('badges.index');
+
+    Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics.index');
+
+  
+    Route::resource('clients', ClientController::class);
+
+
+    Route::resource('quotes', QuoteController::class);
+    Route::post('/quotes/{quote}/convert', [QuoteController::class, 'convert'])->name('quotes.convert');
+    Route::post('/quotes/{quote}/reject', [QuoteController::class, 'reject'])->name('quotes.reject');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

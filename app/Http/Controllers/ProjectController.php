@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Client;
 use App\Models\Project;
+use App\Models\Tag; // <--- IMPORTANTE: Importar o Model Tag
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -15,7 +16,13 @@ class ProjectController extends Controller
     public function create()
     {
         $clients = Client::where('user_id', Auth::id())->orderBy('name')->get();
-        return view('projects.create', compact('clients'));
+        
+        // --- CORREÇÃO DO ERRO ---
+        // Busca as tags para enviar para a View (os checkboxes)
+        $tags = Tag::all(); 
+        
+        // Adicionamos 'tags' no compact
+        return view('projects.create', compact('clients', 'tags'));
     }
 
     /**
@@ -29,9 +36,11 @@ class ProjectController extends Controller
             'total_amount' => 'required|numeric|min:0',
             'deadline' => 'required|date',
             'description' => 'nullable|string',
+            'tags' => 'array', // Valida lista de tags
+            'tags.*' => 'exists:tags,id',
         ]);
 
-        $request->user()->projects()->create([
+        $project = $request->user()->projects()->create([
             'client_id' => $validated['client_id'],
             'title' => $validated['title'],
             'description' => $validated['description'],
@@ -40,8 +49,12 @@ class ProjectController extends Controller
             'status' => 'pending',
         ]);
 
-        // --- GAMIFICAÇÃO (Única adição) ---
-        // Verifica se desbloqueou alguma medalha (Ex: Primeiro Projeto)
+        // --- SALVAR TAGS ---
+        if ($request->has('tags')) {
+            $project->tags()->attach($request->tags);
+        }
+
+        // --- GAMIFICAÇÃO ---
         $newBadges = $request->user()->checkBadges();
 
         $msg = 'Projeto criado com sucesso!';
@@ -57,13 +70,12 @@ class ProjectController extends Controller
      */
     public function show(Project $project)
     {
-        // Segurança: Só deixa ver se o projeto for do usuário logado
         if ($project->user_id !== Auth::id()) {
             abort(403);
         }
 
-        // Carrega dados extras (cliente, faturas, despesas)
-        $project->load(['client', 'invoices', 'expenses']);
+        // Carrega tags também
+        $project->load(['client', 'invoices', 'expenses', 'tags']);
 
         return view('projects.show', compact('project'));
     }

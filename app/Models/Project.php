@@ -19,7 +19,8 @@ class Project extends Model
         'total_amount' => 'decimal:2'
     ];
 
-    // Relações
+    // --- RELACIONAMENTOS ---
+
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -40,13 +41,21 @@ class Project extends Model
         return $this->hasMany(Expense::class);
     }
     
-    // Cálculos
+    // ESTA É A FUNÇÃO QUE FALTAVA:
+    public function tags()
+    {
+        // Relação Many-to-Many Polimórfica
+        return $this->morphToMany(Tag::class, 'taggable');
+    }
+
+    // --- CÁLCULOS E HELPERS ---
+
     public function getProfitAttribute()
     {
         return $this->total_amount - $this->expenses->sum('amount');
     }
 
-    // Acessors Visuais (Cores e Labels)
+    // Tradução do Status
     public function getStatusLabelAttribute()
     {
         return match($this->status) {
@@ -58,6 +67,7 @@ class Project extends Model
         };
     }
 
+    // Cores Vibrantes (Neon Style)
     public function getStatusColorAttribute()
     {
         return match($this->status) {
