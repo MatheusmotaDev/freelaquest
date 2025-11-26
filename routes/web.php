@@ -59,6 +59,8 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
 
     Route::patch('/projects/{project}/status', [App\Http\Controllers\ProjectController::class, 'updateStatus'])->name('projects.update-status');
 
+    Route::get('/projects/{project}/invoice', [App\Http\Controllers\ProjectController::class, 'invoice'])->name('projects.invoice');
+
 
 
 Route::middleware('auth')->group(function () {

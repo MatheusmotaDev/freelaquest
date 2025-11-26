@@ -9,7 +9,7 @@
             </div>
             
             <div class="flex items-center gap-3">
-                <!-- SELETOR DE STATUS (Muda ao selecionar) -->
+                <!-- SELETOR DE STATUS -->
                 <form action="{{ route('projects.update-status', $project->id) }}" method="POST">
                     @csrf
                     @method('PATCH')
@@ -22,6 +22,14 @@
                         <option value="cancelled" {{ $project->status == 'cancelled' ? 'selected' : '' }}>🔴 Cancelado</option>
                     </select>
                 </form>
+
+                <!-- BOTÃO DE RECIBO (Só aparece se concluído) -->
+                @if($project->status === 'completed')
+                    <a href="{{ route('projects.invoice', $project->id) }}" target="_blank" class="flex items-center gap-1 bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-800 px-3 py-2 rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-gray-700 dark:hover:bg-white transition shadow-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                        Nota / Recibo
+                    </a>
+                @endif
 
                 <a href="{{ route('dashboard') }}" class="text-sm text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 underline">
                     Voltar
@@ -55,61 +63,77 @@
                         @endif
                     </div>
 
-                    <!-- Painel de Prazo (CORRIGIDO) -->
-                    <div class="bg-gray-50 dark:bg-gray-700/30 rounded-lg p-4 border border-gray-100 dark:border-gray-700">
-                        <h3 class="text-xs font-bold text-gray-400 uppercase mb-3 tracking-wider">Cronograma</h3>
+                    <!-- Painel de Prazo (LÓGICA CORRIGIDA) -->
+                    <div class="bg-gray-50 dark:bg-gray-700/30 rounded-lg p-4 border border-gray-100 dark:border-gray-700 flex flex-col justify-center">
+                        <h3 class="text-xs font-bold text-gray-400 uppercase mb-3 tracking-wider text-center">Cronograma</h3>
                         
-                        <div class="flex justify-between items-center mb-2">
+                        <div class="flex justify-between items-center mb-2 px-2">
                             <span class="text-sm text-gray-500">Entrega:</span>
                             <span class="font-bold text-gray-800 dark:text-white">{{ $project->deadline->format('d/m/Y') }}</span>
                         </div>
 
-                        <!-- Lógica de Dias Restantes (Inteiro) -->
+                        <!-- CORREÇÃO AQUI: Usamos startOfDay() para comparar dias cheios -->
                         @php
-                            $daysLeft = (int) now()->diffInDays($project->deadline, false);
+                            $now = now()->startOfDay();
+                            $deadline = $project->deadline->startOfDay();
+                            $daysLeft = (int) $now->diffInDays($deadline, false);
                             
-                            // Cores baseadas na urgência
                             $timerColor = 'text-green-500';
-                            if ($daysLeft < 7) $timerColor = 'text-yellow-500';
-                            if ($daysLeft < 0) $timerColor = 'text-red-500';
+                            $timerText = $daysLeft . ' DIAS RESTANTES';
+
+                            if ($daysLeft == 0) {
+                                $timerColor = 'text-orange-500';
+                                $timerText = 'É HOJE!';
+                            } elseif ($daysLeft == 1) {
+                                $timerColor = 'text-yellow-500';
+                                $timerText = 'É AMANHÃ!';
+                            } elseif ($daysLeft < 0) {
+                                $timerColor = 'text-red-500';
+                                $timerText = abs($daysLeft) . ' DIAS DE ATRASO';
+                            } elseif ($daysLeft < 7) {
+                                $timerColor = 'text-yellow-500';
+                            }
                         @endphp
 
-                        <div class="text-center mt-4">
-                            <span class="text-3xl font-extrabold {{ $timerColor }}">
+                        <div class="text-center mt-2">
+                            <span class="text-4xl font-black {{ $timerColor }}">
                                 {{ abs($daysLeft) }}
                             </span>
-                            <p class="text-xs text-gray-400 uppercase font-bold">
-                                {{ $daysLeft < 0 ? 'Dias de Atraso' : 'Dias Restantes' }}
+                            <p class="text-[10px] text-gray-400 uppercase font-bold tracking-widest mt-1">
+                                {{ $daysLeft == 0 || $daysLeft == 1 ? '' : ($daysLeft < 0 ? 'DIAS DE ATRASO' : 'DIAS RESTANTES') }}
                             </p>
+                            
+                            <!-- Mensagem Extra para Hoje/Amanhã -->
+                            @if($daysLeft == 0)
+                                <p class="text-sm font-bold text-orange-500 animate-pulse">É HOJE! 🚀</p>
+                            @elseif($daysLeft == 1)
+                                <p class="text-sm font-bold text-yellow-500">É AMANHÃ! ⏰</p>
+                            @endif
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- 2. SAÚDE FINANCEIRA (DASHBOARD DO PROJETO) -->
+            <!-- 2. SAÚDE FINANCEIRA -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- Cálculos -->
                 @php
                     $totalRevenue = $project->invoices->where('status', 'paid')->sum('amount');
                     $totalExpenses = $project->expenses->sum('amount');
                     $profit = $totalRevenue - $totalExpenses;
                 @endphp
 
-                <!-- Receita -->
                 <div class="bg-white dark:bg-gray-800 p-6 rounded-xl border-l-4 border-blue-500 shadow-sm">
                     <p class="text-xs font-bold text-gray-400 uppercase">Receita Realizada</p>
                     <p class="text-2xl font-bold text-blue-600 dark:text-blue-400 mt-1">R$ {{ number_format($totalRevenue, 2, ',', '.') }}</p>
                     <p class="text-xs text-gray-400 mt-1">De R$ {{ number_format($project->total_amount, 2, ',', '.') }} previstos</p>
                 </div>
 
-                <!-- Despesas -->
                 <div class="bg-white dark:bg-gray-800 p-6 rounded-xl border-l-4 border-red-500 shadow-sm">
                     <p class="text-xs font-bold text-gray-400 uppercase">Custos & Despesas</p>
                     <p class="text-2xl font-bold text-red-600 dark:text-red-400 mt-1">R$ {{ number_format($totalExpenses, 2, ',', '.') }}</p>
                     <p class="text-xs text-gray-400 mt-1">{{ $project->expenses->count() }} lançamentos</p>
                 </div>
 
-                <!-- Lucro Líquido -->
                 <div class="bg-white dark:bg-gray-800 p-6 rounded-xl border-l-4 border-emerald-500 shadow-sm">
                     <p class="text-xs font-bold text-gray-400 uppercase">Lucro Líquido</p>
                     <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1">R$ {{ number_format($profit, 2, ',', '.') }}</p>
