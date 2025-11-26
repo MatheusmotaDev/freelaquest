@@ -8,7 +8,7 @@
             <!-- GAMIFICAÇÃO: Barra de XP Clicável -->
             <a href="{{ route('leaderboard.index') }}" class="group transition transform hover:scale-105 cursor-pointer" title="Ver Ranking e Evolução">
                 <div class="flex items-center gap-4 bg-white dark:bg-gray-800 px-4 py-2 rounded-full shadow-sm border border-gray-200 dark:border-gray-700 relative overflow-hidden">
-                    <!-- Barra de Fundo (Progresso) -->
+                    <!-- Barra de Fundo -->
                     <div class="absolute bottom-0 left-0 h-1 bg-mystic/30 w-full">
                         <div class="h-full bg-mystic transition-all duration-1000" style="width: {{ Auth::user()->xp_progress }}%"></div>
                     </div>
@@ -29,7 +29,6 @@
         </div>
     </x-slot>
 
-    <!-- Adicionamos x-data aqui para controlar o Modal da Meta -->
     <div class="py-12" x-data="{ showGoalModal: false }">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
             
@@ -67,9 +66,8 @@
                     <div class="text-xs text-emerald-600/60 dark:text-emerald-400/60 mt-2 font-medium">Dinheiro no bolso</div>
                 </div>
 
-                <!-- Card 3: Meta (AGORA EDITÁVEL) -->
+                <!-- Card 3: Meta (Editável) -->
                 <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-6 relative group">
-                    <!-- Botão de Editar (Aparece ao passar o mouse) -->
                     <button @click="showGoalModal = true" class="absolute top-4 right-4 text-gray-400 hover:text-arcane transition opacity-0 group-hover:opacity-100" title="Editar Meta">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
@@ -99,26 +97,34 @@
 
             <!-- ÁREA DE AÇÕES E PROJETOS -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <!-- Coluna da Esquerda -->
-                <div class="md:col-span-1 space-y-4">
+                <!-- COLUNA DE BOTÕES (AGORA ORGANIZADA) -->
+                <div class="md:col-span-1 space-y-3">
                     
-                    <!-- Botão NOVO PROJETO -->
-                    <a href="{{ route('projects.create') }}" class="group w-full bg-gradient-to-r from-arcane to-mystic hover:from-blue-600 hover:to-purple-600 text-white font-bold py-4 px-6 rounded-xl shadow-lg shadow-arcane/40 transition-all transform hover:-translate-y-1 hover:shadow-xl flex items-center justify-center gap-3 cursor-pointer text-center relative overflow-hidden">
-                        <div class="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-20 transition-opacity"></div>
+                    <!-- 1. NOVO ORÇAMENTO (Fluxo Principal) -->
+                    <a href="{{ route('quotes.create') }}" class="group w-full bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-bold py-3 px-4 rounded-xl shadow-lg shadow-orange-500/30 transition transform hover:-translate-y-1 flex items-center justify-center gap-3 cursor-pointer relative overflow-hidden">
                         <span class="bg-white/20 rounded-full p-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                         </span>
-                        <span class="tracking-wide">Novo Projeto</span>
+                        <div class="text-left">
+                            <span class="block text-xs font-normal opacity-90">Começar aqui</span>
+                            <span class="block text-sm font-bold">Novo Orçamento</span>
+                        </div>
+                    </a>
+
+                    <!-- 2. PROJETO DIRETO (Secundário) -->
+                    <a href="{{ route('projects.create') }}" class="w-full bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-semibold py-3 px-4 rounded-xl transition flex items-center justify-center gap-2 shadow-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-arcane" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                        <span>Projeto Direto</span>
                     </a>
                     
-                    <!-- Botão NOVA DESPESA -->
-                    <a href="{{ route('expenses.create') }}" class="w-full bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-750 text-gray-700 dark:text-gray-300 font-semibold py-3 px-4 rounded-xl border border-gray-200 dark:border-gray-700 transition flex items-center justify-center gap-2 shadow-sm hover:shadow-md cursor-pointer">
+                    <!-- 3. NOVA DESPESA -->
+                    <a href="{{ route('expenses.create') }}" class="w-full bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-semibold py-3 px-4 rounded-xl transition flex items-center justify-center gap-2 shadow-sm">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                        <span>Nova Despesa</span>
+                        <span>Lançar Despesa</span>
                     </a>
 
                     <!-- WIDGET: A RECEBER HOJE -->
-                    <div class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-100 dark:border-gray-700/50 shadow-sm">
+                    <div class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-100 dark:border-gray-700/50 shadow-sm mt-4">
                         <h4 class="font-bold text-gray-700 dark:text-gray-300 mb-3 text-sm uppercase tracking-wider">A receber</h4>
                         
                         @php
@@ -138,15 +144,14 @@
                                             <p class="text-[10px] uppercase font-bold text-arcane mb-0.5 truncate" title="{{ $invoice->project->client->name }}">
                                                 {{ $invoice->project->client->name }}
                                             </p>
-                                            <p class="text-xs text-gray-500 dark:text-gray-400 truncate w-24" title="{{ $invoice->title }}">
+                                            <p class="text-xs text-gray-500 dark:text-gray-400 truncate w-20" title="{{ $invoice->title }}">
                                                 {{ $invoice->title }}
                                             </p>
                                             <p class="font-bold text-gray-800 dark:text-white text-xs">R$ {{ number_format($invoice->amount, 0, ',', '.') }}</p>
                                         </div>
-                                        
                                         <form method="POST" action="{{ route('invoices.pay', $invoice->id) }}">
                                             @csrf
-                                            <button type="submit" class="text-xs bg-victory/10 text-victory hover:bg-victory hover:text-white px-3 py-1 rounded transition border border-victory/20 font-bold tracking-wide">
+                                            <button type="submit" class="text-xs bg-victory/10 text-victory hover:bg-victory hover:text-white px-2 py-1 rounded transition border border-victory/20 font-bold tracking-wide">
                                                 RECEBER
                                             </button>
                                         </form>
@@ -159,7 +164,7 @@
                     </div>
                 </div>
 
-                <!-- Lista de Projetos Recentes -->
+                <!-- Lista de Projetos Recentes (Mantida) -->
                 <div class="md:col-span-3 bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-xl border border-gray-100 dark:border-gray-700/50">
                     <div class="p-6 border-b border-gray-100 dark:border-gray-700">
                         <h3 class="text-lg font-bold text-gray-800 dark:text-white flex items-center gap-2">
@@ -194,7 +199,7 @@
                         @else
                             <div class="text-center py-12 text-gray-400 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800/50">
                                 <p class="font-medium">Nenhum projeto ativo.</p>
-                                <p class="text-sm mt-1">Clique no botão "Novo Projeto"!</p>
+                                <p class="text-sm mt-1">Comece criando um orçamento!</p>
                             </div>
                         @endif
                     </div>
@@ -203,42 +208,25 @@
         </div>
 
         <!-- MODAL DE EDITAR META -->
-        <div x-show="showGoalModal" 
-             x-transition:enter="transition ease-out duration-300"
-             x-transition:enter-start="opacity-0"
-             x-transition:enter-end="opacity-100"
-             x-transition:leave="transition ease-in duration-200"
-             x-transition:leave-start="opacity-100"
-             x-transition:leave-end="opacity-0"
-             class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-75" style="display: none;">
-            
+        <div x-show="showGoalModal" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-75" style="display: none;">
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-6 max-w-md w-full transform transition-all scale-100">
                 <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Definir Nova Meta</h3>
-                
                 <form method="POST" action="{{ route('goal.update') }}">
                     @csrf
                     @method('PUT')
-
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nome do Objetivo</label>
                         <input type="text" name="financial_goal_name" value="{{ Auth::user()->financial_goal_name }}" 
-                               class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:border-arcane focus:ring-arcane"
-                               placeholder="Ex: Macbook Air, Viagem Japão...">
+                               class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:border-arcane focus:ring-arcane">
                     </div>
-
                     <div class="mb-6">
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Valor da Meta (R$)</label>
                         <input type="number" step="0.01" name="financial_goal_amount" value="{{ Auth::user()->financial_goal_amount }}" 
                                class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:border-arcane focus:ring-arcane">
                     </div>
-
                     <div class="flex justify-end gap-3">
-                        <button type="button" @click="showGoalModal = false" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg transition">
-                            Cancelar
-                        </button>
-                        <button type="submit" class="px-4 py-2 bg-arcane hover:bg-blue-600 text-white font-bold rounded-lg shadow transition">
-                            Salvar Meta
-                        </button>
+                        <button type="button" @click="showGoalModal = false" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg transition">Cancelar</button>
+                        <button type="submit" class="px-4 py-2 bg-arcane hover:bg-blue-600 text-white font-bold rounded-lg shadow transition">Salvar Meta</button>
                     </div>
                 </form>
             </div>

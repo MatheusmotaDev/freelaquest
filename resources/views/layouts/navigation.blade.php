@@ -23,6 +23,13 @@
                         {{ __('Dashboard') }}
                     </x-nav-link>
 
+                    <!-- Projetos (NOVO LINK ADICIONADO) -->
+                    <x-nav-link :href="route('projects.index')" :active="request()->routeIs('projects.*')" class="text-base font-medium group">
+                        <span class="group-hover:text-indigo-400 transition-colors flex items-center gap-2">
+                            <span>🚀</span> {{ __('Projetos') }}
+                        </span>
+                    </x-nav-link>
+
                     <!-- Clientes -->
                     <x-nav-link :href="route('clients.index')" :active="request()->routeIs('clients.*')" class="text-base font-medium group">
                         <span class="group-hover:text-blue-400 transition-colors flex items-center gap-2">
@@ -110,6 +117,9 @@
         <div class="pt-2 pb-3 space-y-1">
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('projects.index')" :active="request()->routeIs('projects.*')">
+                {{ __('Projetos') }}
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('clients.index')" :active="request()->routeIs('clients.*')">
                 {{ __('Clientes') }}

@@ -35,7 +35,7 @@ class ExpenseController extends Controller
             'incurred_date' => $validated['incurred_date'],
         ]);
 
-        // --- GAMIFICAÇÃO: Verifica se ganhou medalha (Ex: Investidor) ---
+        
         $newBadges = Auth::user()->checkBadges();
         
         $msg = 'Despesa registrada.';

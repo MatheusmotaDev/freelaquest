@@ -8,20 +8,20 @@ use Illuminate\Support\Facades\Auth;
 
 class ClientController extends Controller
 {
-    // Listar Clientes
+    
     public function index()
     {
         $clients = Auth::user()->clients()->latest()->get();
         return view('clients.index', compact('clients'));
     }
 
-    // Mostrar Formulário de Criação
+    
     public function create()
     {
         return view('clients.create');
     }
 
-    // Salvar Novo Cliente
+    
     public function store(Request $request)
     {
         $validated = $request->validate([

@@ -13,19 +13,18 @@ class AnalyticsController extends Controller
     {
         $user = Auth::user();
 
-        // 1. Busca todas as tags do sistema para inicializar o array
+        
         $tags = Tag::all();
         $stats = [];
         $colors = [];
         $labels = [];
 
-        // Inicializa contadores zerados
+        
         foreach ($tags as $tag) {
             $stats[$tag->id] = 0;
             $labels[$tag->id] = $tag->name;
             
-            // Mapeia as classes do Tailwind para cores Hex (para o Chart.js)
-            // Fiz um match simples, mas funcional
+            
             $colorMap = [
                 'bg-blue-500' => '#3B82F6',
                 'bg-pink-500' => '#EC4899',
@@ -39,7 +38,7 @@ class AnalyticsController extends Controller
             $colors[] = $colorMap[$tag->color] ?? '#cccccc';
         }
 
-        // 2. Busca Faturas Pagas (Receita Realizada)
+      
         $paidInvoices = Invoice::with('project.tags')
             ->whereHas('project', function($q) use ($user) {
                 $q->where('user_id', $user->id);
@@ -47,12 +46,12 @@ class AnalyticsController extends Controller
             ->where('status', 'paid')
             ->get();
 
-        // 3. Distribui o dinheiro
+       
         foreach ($paidInvoices as $invoice) {
             $projectTags = $invoice->project->tags;
             
             if ($projectTags->count() > 0) {
-                // Se o projeto tem tags, divide o valor entre elas
+               
                 $amountPerTag = $invoice->amount / $projectTags->count();
                 
                 foreach ($projectTags as $tag) {
@@ -63,7 +62,7 @@ class AnalyticsController extends Controller
             }
         }
 
-        // 4. Prepara dados para o gráfico (Remove tags zeradas para ficar bonito)
+       
         $chartData = [
             'labels' => [],
             'data' => [],

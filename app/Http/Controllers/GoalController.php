@@ -7,9 +7,9 @@ use Illuminate\Support\Facades\Auth;
 
 class GoalController extends Controller
 {
-    /**
-     * Atualiza a Meta Financeira do Usuário
-     */
+   
+
+    
     public function update(Request $request)
     {
         $validated = $request->validate([
@@ -17,7 +17,7 @@ class GoalController extends Controller
             'financial_goal_amount' => 'required|numeric|min:1',
         ]);
 
-        // Atualiza o usuário logado
+        
         $user = Auth::user();
         $user->update([
             'financial_goal_name' => $validated['financial_goal_name'],
