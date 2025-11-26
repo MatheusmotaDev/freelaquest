@@ -12,6 +12,7 @@ use App\Http\Controllers\QuoteController;
 use App\Http\Controllers\LeaderboardController;
 use App\Http\Controllers\GoalController;
 
+
 Route::get('/', function () {
     return view('welcome');
 });
@@ -51,8 +52,14 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
     Route::get('/leaderboard', [LeaderboardController::class, 'index'])->name('leaderboard.index');
 
     Route::put('/goal/update', [GoalController::class, 'update'])->name('goal.update');
+    Route::get('/goals', [GoalController::class, 'index'])->name('goals.index'); 
+    Route::post('/goals', [GoalController::class, 'store'])->name('goals.store'); 
+    Route::post('/goals/{goal}/complete', [GoalController::class, 'complete'])->name('goals.complete');
+    Route::post('/goals/{goal}/archive', [GoalController::class, 'archive'])->name('goals.archive'); 
 
     Route::patch('/projects/{project}/status', [App\Http\Controllers\ProjectController::class, 'updateStatus'])->name('projects.update-status');
+
+
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

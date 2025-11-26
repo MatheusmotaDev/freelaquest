@@ -5,7 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-// Importante: Importar os Models para as checagens funcionarem
 use App\Models\Invoice;
 use App\Models\Expense; 
 use App\Models\Badge;
@@ -22,6 +21,7 @@ class User extends Authenticatable
         'current_level',
         'financial_goal_name',
         'financial_goal_amount',
+        'hourly_rate',
     ];
 
     protected $hidden = [
@@ -34,7 +34,7 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
-    // --- RELACIONAMENTOS ---
+   
     public function clients() { return $this->hasMany(Client::class); }
     public function projects() { return $this->hasMany(Project::class); }
     public function quotes() { return $this->hasMany(Quote::class); }
@@ -43,7 +43,19 @@ class User extends Authenticatable
         return $this->belongsToMany(Badge::class)->withPivot('unlocked_at'); 
     }
 
-    // --- XP E NÍVEL ---
+    
+    public function goals()
+    {
+        return $this->hasMany(Goal::class)->latest();
+    }
+
+   
+    public function activeGoal()
+    {
+        return $this->hasOne(Goal::class)->where('status', 'active')->latest();
+    }
+
+   
     public function addXp(int $amount)
     {
         $this->current_xp += $amount;
@@ -68,12 +80,12 @@ class User extends Authenticatable
         return $xpNeeded == 0 ? 0 : ($this->current_xp / $xpNeeded) * 100;
     }
 
-    // --- VERIFICAÇÃO DE BADGES (ATUALIZADA) ---
+    
     public function checkBadges()
     {
         $unlockedNow = [];
         
-        // Busca badges que o usuário ainda NÃO tem
+     
         $potentialBadges = Badge::whereDoesntHave('users', function($q) {
             $q->where('user_id', $this->id);
         })->get();
@@ -82,7 +94,7 @@ class User extends Authenticatable
             $awarded = false;
 
             switch ($badge->rule_identifier) {
-                // Regras Básicas
+                
                 case 'FIRST_PROJECT':
                     if ($this->projects()->count() >= 1) $awarded = true;
                     break;
@@ -104,7 +116,7 @@ class User extends Authenticatable
                     if ($this->clients()->count() >= 3) $awarded = true;
                     break;
 
-                // Regras Avançadas (Novas)
+                
                 case 'LEVEL_5':
                     if ($this->current_level >= 5) $awarded = true;
                     break;

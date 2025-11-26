@@ -11,7 +11,7 @@
                 color: black !important;
                 margin: 0 !important;
             }
-            /* Esconde tudo */
+            /* Esconde tudo que não for o documento */
             body * {
                 visibility: hidden;
             }
@@ -25,14 +25,20 @@
                 top: 0;
                 width: 100%;
                 margin: 0;
-                padding: 0; /* Remove padding extra na impressão para não encolher */
+                padding: 0;
                 border: none;
                 box-shadow: none;
-                max-width: none !important; /* Garante largura total */
+                max-width: none !important;
             }
             /* Esconde elementos de UI */
             .no-print {
                 display: none !important;
+            }
+            /* Ajustes finos para a nota de transparência na impressão */
+            .transparency-note {
+                border: 1px solid #e5e7eb !important;
+                background-color: transparent !important;
+                color: #6b7280 !important;
             }
         }
     </style>
@@ -52,7 +58,6 @@
 
     <!-- Adicionamos x-data aqui para controlar o Modal -->
     <div class="py-12" x-data="{ showRejectModal: false }">
-        <!-- Mudei de max-w-4xl para max-w-5xl para ficar mais largo na tela -->
         <div class="max-w-5xl mx-auto sm:px-6 lg:px-8">
             
             <!-- BARRA DE AÇÕES (Botões) -->
@@ -96,7 +101,6 @@
             </div>
 
             <!-- DOCUMENTO A4 (Área Imprimível) -->
-            <!-- Aumentei o padding interno (p-16) para dar mais ar de "Papel" -->
             <div id="printable-area" class="bg-white text-gray-900 shadow-2xl rounded-sm overflow-hidden relative print:shadow-none print:w-full">
                 
                 <!-- Faixa Decorativa -->
@@ -171,35 +175,40 @@
                     <div class="mb-10 bg-gray-50 p-6 rounded border-l-4 border-arcane">
                         <p class="text-xs font-bold text-gray-400 uppercase mb-2">Projeto</p>
                         <h2 class="text-2xl font-bold text-gray-800">{{ $quote->title }}</h2>
+                        @if($quote->description)
+                            <p class="text-gray-600 text-sm mt-2 leading-relaxed">{{ $quote->description }}</p>
+                        @endif
                     </div>
 
-                    <!-- Descrição / Escopo -->
-                    <div class="mb-16">
-                        <h4 class="text-sm font-bold text-gray-800 uppercase border-b-2 border-gray-100 pb-3 mb-6">Escopo dos Serviços</h4>
-                        <div class="prose text-gray-700 text-base leading-relaxed whitespace-pre-line">
-                            {{ $quote->description ?? 'Descrição detalhada dos serviços não fornecida.' }}
-                        </div>
-                    </div>
-
-                    <!-- Tabela de Valores -->
-                    <div class="mb-16">
-                        <table class="w-full text-left">
+                    <!-- TABELA DE ITENS (DETALHADA) -->
+                    <div class="mb-10">
+                        <h4 class="text-sm font-bold text-gray-800 uppercase border-b-2 border-gray-100 pb-3 mb-6">Detalhamento de Custos</h4>
+                        <table class="w-full text-left border-collapse">
                             <thead>
                                 <tr class="border-b-2 border-gray-800">
-                                    <th class="py-3 text-sm font-bold text-gray-800 uppercase w-3/4">Descrição</th>
-                                    <th class="py-3 text-sm font-bold text-gray-800 uppercase text-right w-1/4">Total</th>
+                                    <th class="py-3 text-sm font-bold text-gray-600 uppercase w-1/2">Descrição do Serviço</th>
+                                    <th class="py-3 text-sm font-bold text-gray-600 uppercase text-center">Qtd/Horas</th>
+                                    <th class="py-3 text-sm font-bold text-gray-600 uppercase text-right">Valor Unit.</th>
+                                    <th class="py-3 text-sm font-bold text-gray-800 uppercase text-right">Total</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr class="border-b border-gray-200">
-                                    <td class="py-5 text-gray-600 font-medium">Execução do Projeto: {{ $quote->title }}</td>
-                                    <td class="py-5 text-gray-800 font-bold text-right text-lg">R$ {{ number_format($quote->amount, 2, ',', '.') }}</td>
-                                </tr>
+                                @foreach($quote->items as $item)
+                                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                                        <td class="py-4 text-gray-700 text-sm">{{ $item->description }}</td>
+                                        <td class="py-4 text-gray-500 text-center text-sm">{{ floatval($item->quantity) }}</td>
+                                        <td class="py-4 text-gray-500 text-right text-sm">R$ {{ number_format($item->unit_price, 2, ',', '.') }}</td>
+                                        <td class="py-4 text-gray-800 font-bold text-right text-sm">R$ {{ number_format($item->total_price, 2, ',', '.') }}</td>
+                                    </tr>
+                                @endforeach
                             </tbody>
                             <tfoot>
                                 <tr>
-                                    <td class="pt-8 text-right text-gray-500 font-medium uppercase tracking-wide">Total Geral</td>
-                                    <td class="pt-8 text-right text-3xl font-extrabold text-arcane">
+                                    <td colspan="4" class="pt-6"></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3" class="text-right text-gray-500 font-medium uppercase tracking-wide pr-4">Total Geral</td>
+                                    <td class="text-right text-3xl font-extrabold text-arcane bg-gray-50 p-2 rounded">
                                         R$ {{ number_format($quote->amount, 2, ',', '.') }}
                                     </td>
                                 </tr>
@@ -207,10 +216,22 @@
                         </table>
                     </div>
 
+                    <!-- NOTA DE TRANSPARÊNCIA (SE HOUVER VALOR HORA) -->
+                    @if(Auth::user()->hourly_rate > 0)
+                        <div class="transparency-note mb-12 p-4 bg-blue-50 border-l-4 border-blue-400 rounded text-sm text-blue-800">
+                            <p class="font-bold mb-1">ℹ️ Transparência de Custos</p>
+                            <p>
+                                Este orçamento foi elaborado considerando a complexidade técnica e o tempo de dedicação estimado. 
+                                O valor base para cálculo da hora técnica especializada é de <strong>R$ {{ number_format(Auth::user()->hourly_rate, 2, ',', '.') }}</strong>.
+                            </p>
+                        </div>
+                    @endif
+
                     <!-- Rodapé -->
-                    <div class="mt-24 pt-8 border-t border-gray-200 text-center">
-                        <p class="text-gray-400 text-xs mb-12 max-w-xl mx-auto">
-                            Este documento é uma proposta comercial válida por 15 dias. O pagamento deve ser realizado conforme os termos combinados.
+                    <div class="mt-12 pt-8 border-t border-gray-200 text-center">
+                        <p class="text-gray-400 text-xs mb-12 max-w-xl mx-auto italic">
+                            "Compromisso com a qualidade e entrega no prazo." <br>
+                            Proposta válida até {{ $quote->valid_until ? $quote->valid_until->format('d/m/Y') : '15 dias' }}. Sujeito a aprovação.
                         </p>
                         
                         @if($quote->status !== 'rejected')
@@ -236,7 +257,7 @@
 
         </div>
 
-        <!-- MODAL PERSONALIZADO DE REJEIÇÃO (Alpine.js) -->
+        <!-- MODAL PERSONALIZADO DE REJEIÇÃO -->
         <div x-show="showRejectModal" 
              x-transition:enter="transition ease-out duration-300"
              x-transition:enter-start="opacity-0"

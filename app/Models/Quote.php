@@ -53,4 +53,12 @@ class Quote extends Model
             'rejected' => 'red',
         };
     }
+
+   
+
+    public function items()
+    {
+        return $this->hasMany(QuoteItem::class);
+    }
+
 }
