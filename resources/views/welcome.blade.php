@@ -63,7 +63,7 @@
 
                 <h1 class="text-5xl lg:text-7xl font-extrabold tracking-tight mb-6 leading-tight">
                     Transforme seus Freelas <br>
-                    em uma <span class="text-transparent bg-clip-text bg-gradient-to-r from-arcane via-mystic to-purple-500">Aventura Épica</span>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-arcane via-mystic to-purple-500">Aventura Épica</span>
                 </h1>
 
                 <p class="text-xl text-gray-400 max-w-2xl mx-auto mb-10 leading-relaxed">

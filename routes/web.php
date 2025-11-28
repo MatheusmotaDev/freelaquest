@@ -11,6 +11,7 @@ use App\Http\Controllers\ClientController;
 use App\Http\Controllers\QuoteController;
 use App\Http\Controllers\LeaderboardController;
 use App\Http\Controllers\GoalController;
+use App\Http\Controllers\AnnouncementController;
 
 
 Route::get('/', function () {
@@ -60,6 +61,8 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
     Route::patch('/projects/{project}/status', [App\Http\Controllers\ProjectController::class, 'updateStatus'])->name('projects.update-status');
 
     Route::get('/projects/{project}/invoice', [App\Http\Controllers\ProjectController::class, 'invoice'])->name('projects.invoice');
+
+    Route::resource('announcements', AnnouncementController::class)->only(['index', 'create', 'store']);
 
 
 

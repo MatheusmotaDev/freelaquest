@@ -9,10 +9,10 @@
         <div class="px-4 sm:px-6">
             <div class="flex justify-between h-16">
                 
-                <!-- LADO ESQUERDO: Logo + Links -->
-                <div class="flex">
+                <!-- LADO ESQUERDO: Logo + Menus -->
+                <div class="flex items-center">
                     <!-- Logo -->
-                    <div class="shrink-0 flex items-center">
+                    <div class="shrink-0 flex items-center mr-6">
                         <a href="{{ route('dashboard') }}" class="group flex items-center gap-2">
                             <div class="transition-transform group-hover:scale-110 duration-300">
                                 <x-application-logo class="block h-9 w-auto fill-current text-white" />
@@ -24,71 +24,68 @@
                     </div>
 
                     <!-- Links de Navegação (Desktop) -->
-                    <div class="hidden space-x-1 xl:space-x-2 sm:-my-px sm:ml-6 lg:ml-10 sm:flex items-center">
+                    <div class="hidden sm:flex items-center gap-1">
                         
-                        @php
-                            $navClasses = 'inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium transition duration-150 ease-in-out gap-2';
-                            // Ativo: Texto Roxo/Azul brilhante
-                            $activeClasses = 'bg-white/10 text-arcane border border-arcane/30 shadow-[0_0_15px_rgba(88,101,242,0.2)]';
-                            // Inativo: Texto Branco/Cinza claro
-                            $inactiveClasses = 'text-gray-300 hover:text-white hover:bg-white/10 border border-transparent';
-                        @endphp
-
-                        <!-- Dashboard -->
-                        <a href="{{ route('dashboard') }}" class="{{ $navClasses }} {{ request()->routeIs('dashboard') ? $activeClasses : $inactiveClasses }}">
+                        <!-- 1. DASHBOARD (Link Direto) -->
+                        <a href="{{ route('dashboard') }}" class="px-3 py-2 rounded-lg text-sm font-medium transition duration-150 ease-in-out flex items-center gap-2 {{ request()->routeIs('dashboard') ? 'bg-white/10 text-arcane border border-arcane/30' : 'text-gray-300 hover:text-white hover:bg-white/5 border border-transparent' }}">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
-                            <span class="hidden lg:inline">Painel</span>
+                            Painel
                         </a>
 
-                        <!-- Projetos -->
-                        <a href="{{ route('projects.index') }}" class="{{ $navClasses }} {{ request()->routeIs('projects.*') ? $activeClasses : $inactiveClasses }}">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                            <span class="hidden lg:inline">Projetos</span>
-                        </a>
+                        <!-- 2. GESTÃO (Dropdown) -->
+                        <div class="relative" x-data="{ openGestao: false }">
+                            <button @click="openGestao = !openGestao" @click.outside="openGestao = false" class="px-3 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-white hover:bg-white/5 border border-transparent transition flex items-center gap-1">
+                                <span>📂 Gestão</span>
+                                <svg class="w-3 h-3 ml-1 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                            <!-- Dropdown Menu -->
+                            <div x-show="openGestao" x-transition class="absolute left-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded-xl shadow-xl z-50 overflow-hidden" style="display: none;">
+                                <a href="{{ route('projects.index') }}" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition">🚀 Projetos</a>
+                                <a href="{{ route('clients.index') }}" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition">👥 Clientes</a>
+                                <a href="{{ route('quotes.index') }}" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition">📄 Orçamentos</a>
+                            </div>
+                        </div>
 
-                        <!-- Clientes -->
-                        <a href="{{ route('clients.index') }}" class="{{ $navClasses }} {{ request()->routeIs('clients.*') ? $activeClasses : $inactiveClasses }}">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-                            <span class="hidden lg:inline">Clientes</span>
-                        </a>
+                        <!-- 3. CARREIRA (Dropdown) -->
+                        <div class="relative" x-data="{ openCarreira: false }">
+                            <button @click="openCarreira = !openCarreira" @click.outside="openCarreira = false" class="px-3 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-white hover:bg-white/5 border border-transparent transition flex items-center gap-1">
+                                <span>🏆 Carreira</span>
+                                <svg class="w-3 h-3 ml-1 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                            <!-- Dropdown Menu -->
+                            <div x-show="openCarreira" x-transition class="absolute left-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded-xl shadow-xl z-50 overflow-hidden" style="display: none;">
+                                <a href="{{ route('badges.index') }}" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition">🏅 Conquistas</a>
+                                <a href="{{ route('analytics.index') }}" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition">📊 Analytics</a>
+                            </div>
+                        </div>
 
-                        <!-- Orçamentos -->
-                        <a href="{{ route('quotes.index') }}" class="{{ $navClasses }} {{ request()->routeIs('quotes.*') ? $activeClasses : $inactiveClasses }}">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                            <span class="hidden lg:inline">Orçamentos</span>
-                        </a>
-                        
-                        <!-- Conquistas -->
-                        <a href="{{ route('badges.index') }}" class="{{ $navClasses }} {{ request()->routeIs('badges.index') ? $activeClasses : $inactiveClasses }}">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
-                            <span class="hidden lg:inline">Conquistas</span>
-                        </a>
-
-                        <!-- Analytics -->
-                        <a href="{{ route('analytics.index') }}" class="{{ $navClasses }} {{ request()->routeIs('analytics.index') ? $activeClasses : $inactiveClasses }}">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path></svg>
-                            <span class="hidden lg:inline">Analytics</span>
-                        </a>
                     </div>
                 </div>
 
-                <!-- LADO DIREITO: Perfil (Dropdown) -->
-                <div class="hidden sm:flex sm:items-center sm:ml-6">
+                <!-- LADO DIREITO: Avisos + Perfil -->
+                <div class="hidden sm:flex sm:items-center sm:ml-6 gap-3">
+                    
+                    <!-- Ícone de Avisos (Sino) -->
+                    <a href="{{ route('announcements.index') }}" class="relative p-2 text-gray-400 hover:text-white transition rounded-full hover:bg-white/10 group" title="Avisos do Sistema">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                        <!-- Bolinha Vermelha (Decorativa por enquanto) -->
+                        <span class="absolute top-2 right-2 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-gray-900"></span>
+                    </a>
+
+                    <!-- Dropdown de Perfil -->
                     <x-dropdown align="right" width="48">
                         <x-slot name="trigger">
                             <button class="flex items-center gap-3 px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 transition focus:outline-none focus:ring-2 focus:ring-arcane/50 cursor-pointer group">
                                 
-                                <!-- Nome e Nível (Texto Branco) -->
                                 <div class="text-right hidden md:block">
                                     <div class="text-sm font-bold text-white leading-none group-hover:text-arcane transition">
-                                        {{ explode(' ', Auth::user()->name)[0] }} <!-- Pega só o primeiro nome -->
+                                        {{ explode(' ', Auth::user()->name)[0] }}
                                     </div>
                                     <div class="text-[10px] text-gray-400 font-medium leading-none mt-1">
                                         Nível {{ Auth::user()->current_level }}
                                     </div>
                                 </div>
 
-                                <!-- Avatar -->
                                 <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-arcane to-mystic p-[2px] shadow-lg shadow-arcane/20">
                                     <div class="w-full h-full rounded-full bg-gray-900 flex items-center justify-center text-white text-sm font-bold">
                                         {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
@@ -105,7 +102,6 @@
                                     {{ __('👤 Perfil') }}
                                 </x-dropdown-link>
 
-                                <!-- Authentication -->
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf
                                     <x-dropdown-link :href="route('logout')" class="text-red-400 hover:bg-red-900/20 hover:text-red-300"
@@ -130,30 +126,40 @@
             </div>
         </div>
 
-        <!-- Responsive Menu (Mobile) -->
+        <!-- Menu Mobile (Lista Plana para facilitar) -->
         <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden border-t border-gray-700 bg-gray-900/95 backdrop-blur-xl rounded-b-2xl">
             <div class="pt-2 pb-3 space-y-1 px-2">
+                <!-- Dashboard -->
                 <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="text-gray-300 hover:text-white hover:bg-white/10">
-                    {{ __('Dashboard') }}
+                    {{ __('Painel') }}
                 </x-responsive-nav-link>
-                <x-responsive-nav-link :href="route('projects.index')" :active="request()->routeIs('projects.*')" class="text-gray-300 hover:text-white hover:bg-white/10">
+                
+                <!-- Gestão -->
+                <div class="px-4 py-2 text-xs font-bold text-gray-500 uppercase tracking-wider">Gestão</div>
+                <x-responsive-nav-link :href="route('projects.index')" :active="request()->routeIs('projects.*')" class="text-gray-300 hover:text-white hover:bg-white/10 ml-2">
                     {{ __('Projetos') }}
                 </x-responsive-nav-link>
-                <x-responsive-nav-link :href="route('clients.index')" :active="request()->routeIs('clients.*')" class="text-gray-300 hover:text-white hover:bg-white/10">
+                <x-responsive-nav-link :href="route('clients.index')" :active="request()->routeIs('clients.*')" class="text-gray-300 hover:text-white hover:bg-white/10 ml-2">
                     {{ __('Clientes') }}
                 </x-responsive-nav-link>
-                <x-responsive-nav-link :href="route('quotes.index')" :active="request()->routeIs('quotes.*')" class="text-gray-300 hover:text-white hover:bg-white/10">
+                <x-responsive-nav-link :href="route('quotes.index')" :active="request()->routeIs('quotes.*')" class="text-gray-300 hover:text-white hover:bg-white/10 ml-2">
                     {{ __('Orçamentos') }}
                 </x-responsive-nav-link>
-                <x-responsive-nav-link :href="route('badges.index')" :active="request()->routeIs('badges.index')" class="text-gray-300 hover:text-white hover:bg-white/10">
+
+                <!-- Carreira -->
+                <div class="px-4 py-2 text-xs font-bold text-gray-500 uppercase tracking-wider mt-2">Carreira</div>
+                <x-responsive-nav-link :href="route('badges.index')" :active="request()->routeIs('badges.index')" class="text-gray-300 hover:text-white hover:bg-white/10 ml-2">
                     {{ __('Conquistas') }}
                 </x-responsive-nav-link>
-                <x-responsive-nav-link :href="route('analytics.index')" :active="request()->routeIs('analytics.index')" class="text-gray-300 hover:text-white hover:bg-white/10">
+                <x-responsive-nav-link :href="route('analytics.index')" :active="request()->routeIs('analytics.index')" class="text-gray-300 hover:text-white hover:bg-white/10 ml-2">
                     {{ __('Analytics') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('announcements.index')" :active="request()->routeIs('announcements.*')" class="text-gray-300 hover:text-white hover:bg-white/10 ml-2">
+                    {{ __('Avisos') }}
                 </x-responsive-nav-link>
             </div>
 
-            <!-- Responsive Settings -->
+            <!-- Perfil Mobile -->
             <div class="pt-4 pb-4 border-t border-gray-800">
                 <div class="px-4 flex items-center gap-3">
                      <div class="w-10 h-10 rounded-full bg-mystic flex items-center justify-center text-white font-bold">
