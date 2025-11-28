@@ -12,6 +12,7 @@ use App\Http\Controllers\QuoteController;
 use App\Http\Controllers\LeaderboardController;
 use App\Http\Controllers\GoalController;
 use App\Http\Controllers\AnnouncementController;
+use App\Http\Controllers\CommentController;
 
 
 Route::get('/', function () {
@@ -63,6 +64,11 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
     Route::get('/projects/{project}/invoice', [App\Http\Controllers\ProjectController::class, 'invoice'])->name('projects.invoice');
 
     Route::resource('announcements', AnnouncementController::class)->only(['index', 'create', 'store']);
+
+    Route::post('/announcements/{announcement}/comments', [CommentController::class, 'store'])->name('comments.store');
+    Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
+
+    Route::resource('announcements', App\Http\Controllers\AnnouncementController::class)->only(['index', 'create', 'store', 'destroy']);
 
 
 
